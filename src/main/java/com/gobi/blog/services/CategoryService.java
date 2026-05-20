@@ -6,6 +6,9 @@ import java.util.List;
 
 public interface CategoryService {
 
-      List<Category> listCategories();
-      Category createCategory(Category category);
+    List<Category> listCategories();
+
+    Category createCategory(Category category);
+
+    void deleteCategory(java.util.UUID id);
 }
