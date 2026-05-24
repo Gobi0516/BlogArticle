@@ -1,5 +1,6 @@
 package com.gobi.blog.config;
 
+import com.gobi.blog.domain.entities.User;
 import com.gobi.blog.repositories.UserRepository;
 import com.gobi.blog.security.BlogUserDetailsService;
 import com.gobi.blog.security.JwtAuthenticationFilter;
@@ -22,7 +23,18 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService(UserRepository userRepository) {
-        return new BlogUserDetailsService(userRepository);
+        BlogUserDetailsService blogUserDetailsService = new BlogUserDetailsService(userRepository);
+
+        String email = "gobi@gmail.com";
+        userRepository.findByEmail(email).orElseGet(() -> {
+            User newUser = User.builder()
+                    .name("Test User")
+                    .email(email)
+                    .password(passwordEncoder().encode("password"))
+                    .build();
+            return userRepository.save(newUser);
+        });
+        return blogUserDetailsService;
     }
 
     @Bean
@@ -55,7 +67,8 @@ public class SecurityConfig {
                         // Public GET APIs
                         .requestMatchers(HttpMethod.GET, "/api/v1/posts/**", "/api/v1/categories/**", "/api/v1/tags/**").permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/**", "/api/v1/tags/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/tags/**").permitAll()
                         // Any Other Request
                         .anyRequest().authenticated()
                 )// JWT Filter
