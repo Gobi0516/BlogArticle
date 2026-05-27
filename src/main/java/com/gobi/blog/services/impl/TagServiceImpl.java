@@ -3,6 +3,7 @@ package com.gobi.blog.services.impl;
 import com.gobi.blog.domain.entities.Tag;
 import com.gobi.blog.repositories.TagRepository;
 import com.gobi.blog.services.TagService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -64,5 +65,16 @@ public class TagServiceImpl implements TagService {
             }
             tagRepository.deleteById(id);
         });
+    }
+
+    @Override
+    public Tag findByTagId(UUID id) {
+
+        Tag tag = tagRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Tag not found with id: " + id
+                ));
+
+        return tag;
     }
 }
