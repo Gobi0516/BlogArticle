@@ -1,9 +1,11 @@
 package com.gobi.blog.services.impl;
 
 import com.gobi.blog.domain.entities.Category;
+import com.gobi.blog.domain.entities.Tag;
 import com.gobi.blog.repositories.CategoryRepository;
 import com.gobi.blog.repositories.PostRepository;
 import com.gobi.blog.services.CategoryService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -45,5 +47,12 @@ public class CategoryServiceImpl implements CategoryService {
             throw new IllegalStateException("Cannot delete category. Posts are associated with it.");
         }
         categoryRepository.delete(category);
+    }
+
+
+    @Override
+    public Category findByCategoryId(UUID id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
     }
 }
