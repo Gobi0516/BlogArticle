@@ -2,7 +2,9 @@ package com.gobi.blog.controllers;
 
 import com.gobi.blog.dtos.AuthResponse;
 import com.gobi.blog.dtos.LoginRequest;
+import com.gobi.blog.dtos.RegisterRequest;
 import com.gobi.blog.services.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +23,17 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         UserDetails userDetails = authService.authenticate(request.getEmail(), request.getPassword());
+        String token = authService.generateToken(userDetails);
+        AuthResponse authResponse = AuthResponse.builder()
+                .token(token)
+                .expiresIn(3600)
+                .build();
+        return ResponseEntity.ok(authResponse);
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+        UserDetails userDetails = authService.register(request.getEmail(), request.getPassword(), request.getName());
         String token = authService.generateToken(userDetails);
         AuthResponse authResponse = AuthResponse.builder()
                 .token(token)

@@ -1,5 +1,8 @@
 package com.gobi.blog.services.impl;
 
+import com.gobi.blog.domain.entities.User;
+import com.gobi.blog.repositories.UserRepository;
+import com.gobi.blog.security.BlogUserDetails;
 import com.gobi.blog.services.AuthService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -7,7 +10,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +27,8 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserDetailsService userDetailsService;
     private final AuthenticationManager authenticationManager;
-
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     // Minimum 32 characters for HS256
     private static final String SECRET_KEY =
@@ -58,6 +60,23 @@ public class AuthServiceImpl implements AuthService {
     public UserDetails validateToken(String token) {
         String username = extractUsername(token);
         return userDetailsService.loadUserByUsername(username);
+    }
+
+    @Override
+    public UserDetails register(String email, String password, String name) {
+        String trimmedEmail = email.trim().toLowerCase();
+        if (userRepository.findByEmail(trimmedEmail).isPresent()) {
+            throw new IllegalArgumentException("User with email " + email + " already exists.");
+        }
+
+        User user = User.builder()
+                .email(trimmedEmail)
+                .password(passwordEncoder.encode(password))
+                .name(name)
+                .build();
+
+        User savedUser = userRepository.save(user);
+        return new BlogUserDetails(savedUser);
     }
 
     private String extractUsername(String token) {

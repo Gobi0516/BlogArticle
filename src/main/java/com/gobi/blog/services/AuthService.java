@@ -1,7 +1,5 @@
 package com.gobi.blog.services;
 
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 
 
@@ -12,4 +10,5 @@ public interface AuthService {
 
     UserDetails validateToken(String token);
 
+    UserDetails register(String email, String password, String name);
 }
