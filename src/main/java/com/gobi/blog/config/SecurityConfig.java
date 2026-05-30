@@ -62,12 +62,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         // Public Auth APIs
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
 
-                        // Public GET APIs
+                        // Draft posts require authentication; other GET APIs are public
+                        .requestMatchers(HttpMethod.GET, "/api/v1/posts/drafts").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/posts/**", "/api/v1/categories/**", "/api/v1/tags/**").permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/**", "/api/v1/tags/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/tags/**", "/api/v1/categories/**", "/api/v1/posts/**").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/tags/**").permitAll()
                         // Any Other Request
                         .anyRequest().authenticated()

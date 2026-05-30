@@ -4,6 +4,8 @@ import com.gobi.blog.domain.PostStatus;
 import com.gobi.blog.domain.entities.Category;
 import com.gobi.blog.domain.entities.Post;
 import com.gobi.blog.domain.entities.Tag;
+import com.gobi.blog.domain.entities.User;
+import com.gobi.blog.dtos.CreatePostRequest;
 import com.gobi.blog.dtos.PostDto;
 import com.gobi.blog.repositories.CategoryRepository;
 import com.gobi.blog.repositories.PostRepository;
@@ -15,7 +17,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -55,5 +59,45 @@ public class PostServiceImpl implements PostService {
         }
         return postRepository.findAllByStatus(PostStatus.PUBLISHED);
 
+    }
+
+
+    @Override
+    public Post createPost(CreatePostRequest request, User user) {
+
+        Category category = categoryService.findByCategoryId(request.getCategoryId());
+
+        Set<Tag> tags = new HashSet<>();
+
+        if (request.getTagIds() != null && !request.getTagIds().isEmpty()) {
+
+            request.getTagIds().forEach(tagId -> {
+                Tag tag = tagService.findByTagId(tagId);
+                tags.add(tag);
+            });
+        }
+
+        Post post = Post.builder()
+                .title(request.getTitle())
+                .content(request.getContent())
+                .category(category)
+                .tags(tags)
+                .author(user)
+                .status(request.getStatus())
+                .readingTime(calculateReadingTime(request.getContent()))
+                .build();
+
+        return postRepository.save(post);
+    }
+
+    @Override
+    public List<Post> getAllDraftPost(User user) {
+        return postRepository.findAllByAuthorAndStatus(user, PostStatus.DRAFT);
+
+    }
+
+    private Integer calculateReadingTime(String content) {
+        int words = content.trim().split("\\s+").length;
+        return Math.max(1, (int) Math.ceil(words / 200.0));
     }
 }

@@ -4,6 +4,7 @@ import com.gobi.blog.domain.PostStatus;
 import com.gobi.blog.domain.entities.Category;
 import com.gobi.blog.domain.entities.Post;
 import com.gobi.blog.domain.entities.Tag;
+import com.gobi.blog.domain.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -21,4 +22,6 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
     List<Post> findAllByTagsAndStatus(Tag tag, PostStatus status);
 
     List<Post> findAllByStatus(PostStatus status);
+
+    List<Post> findAllByAuthorAndStatus(User author, PostStatus status);
 }
