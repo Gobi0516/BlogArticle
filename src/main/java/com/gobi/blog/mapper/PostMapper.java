@@ -1,8 +1,6 @@
 package com.gobi.blog.mapper;
 
-import com.gobi.blog.dtos.CreatePostRequest;
-import com.gobi.blog.dtos.CreatePostRequestDto;
-import com.gobi.blog.dtos.PostDto;
+import com.gobi.blog.dtos.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -14,4 +12,15 @@ public interface PostMapper {
     PostDto toPostDto(com.gobi.blog.domain.entities.Post post);
 
     CreatePostRequest toCreatePostRequest(CreatePostRequestDto dto);
+
+    public UpdatePostRequest toUpdatePostRequest(
+            UpdatePostRequestDto dto
+    ) {
+        return UpdatePostRequest.builder()
+                .title(dto.getTitle())
+                .content(dto.getContent())
+                .categoryId(dto.getCategoryId())
+                .tagIds(dto.getTagIds())
+                .build();
+    }
 }
