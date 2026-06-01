@@ -5,6 +5,7 @@ import com.gobi.blog.domain.entities.Post;
 import com.gobi.blog.domain.entities.User;
 import com.gobi.blog.dtos.CreatePostRequest;
 import com.gobi.blog.dtos.PostDto;
+import com.gobi.blog.dtos.UpdatePostRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface PostService {
     List<Post> getAllDraftPost(User user);
 
     Post createPost(CreatePostRequest request, User user);
+
+    Post updatePost(UUID postId, UpdatePostRequest request, User user);
 }

@@ -1,6 +1,7 @@
 package com.gobi.blog.controllers;
 
 import com.gobi.blog.dtos.ApiErrorResponse;
+import com.gobi.blog.exceptions.UnauthorizedException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -72,5 +73,18 @@ public class ErrorController {
                 .build();
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiErrorResponse> handleUnauthorizedException(
+            UnauthorizedException ex) {
+
+        ApiErrorResponse response = ApiErrorResponse.builder()
+                .status(HttpStatus.FORBIDDEN.value())
+                .message(ex.getMessage())
+                .errors(null)
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 }

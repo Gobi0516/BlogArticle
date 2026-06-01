@@ -3,9 +3,7 @@ package com.gobi.blog.controllers;
 
 import com.gobi.blog.domain.entities.Post;
 import com.gobi.blog.domain.entities.User;
-import com.gobi.blog.dtos.CreatePostRequest;
-import com.gobi.blog.dtos.CreatePostRequestDto;
-import com.gobi.blog.dtos.PostDto;
+import com.gobi.blog.dtos.*;
 import com.gobi.blog.mapper.PostMapper;
 import com.gobi.blog.services.PostService;
 import com.gobi.blog.services.UserService;
@@ -65,5 +63,22 @@ public class PostController {
         PostDto postDto = postMapper.toPostDto(post);
 
         return new ResponseEntity<>(postDto, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{postId}")
+    public ResponseEntity<PostDto> updatePost(
+            @PathVariable UUID postId,
+            @Valid @RequestBody UpdatePostRequestDto updatePostRequestDto,
+            @RequestAttribute UUID userId
+    ) {
+        User user = userService.getUserById(userId);
+
+        UpdatePostRequest request = postMapper.toUpdatePostRequest(updatePostRequestDto);
+
+        Post updatedPost = postService.updatePost(postId, request, user);
+
+        PostDto postDto = postMapper.toPostDto(updatedPost);
+
+        return ResponseEntity.ok(postDto);
     }
 }

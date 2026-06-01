@@ -7,6 +7,8 @@ import com.gobi.blog.domain.entities.Tag;
 import com.gobi.blog.domain.entities.User;
 import com.gobi.blog.dtos.CreatePostRequest;
 import com.gobi.blog.dtos.PostDto;
+import com.gobi.blog.dtos.UpdatePostRequest;
+import com.gobi.blog.exceptions.UnauthorizedException;
 import com.gobi.blog.repositories.CategoryRepository;
 import com.gobi.blog.repositories.PostRepository;
 import com.gobi.blog.repositories.TagRepository;
@@ -17,10 +19,12 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -99,5 +103,44 @@ public class PostServiceImpl implements PostService {
     private Integer calculateReadingTime(String content) {
         int words = content.trim().split("\\s+").length;
         return Math.max(1, (int) Math.ceil(words / 200.0));
+    }
+
+    @Override
+    public Post updatePost(
+            UUID postId,
+            UpdatePostRequest request,
+            User user
+    ) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Post not found"));
+
+        // Optional: only allow author to update
+        if (!post.getAuthor().getId().equals(user.getId())) {
+            throw new UnauthorizedException("You are not allowed to update this post");
+        }
+
+        post.setTitle(request.getTitle());
+        post.setContent(request.getContent());
+
+        if (request.getCategoryId() != null) {
+            Category category = categoryService.findByCategoryId(
+                    request.getCategoryId()
+            );
+            post.setCategory(category);
+        }
+
+        if (request.getTagIds() != null) {
+            Set<Tag> tags = request.getTagIds()
+                    .stream()
+                    .map(tagService::findByTagId)
+                    .collect(Collectors.toSet());
+
+            post.setTags(tags);
+        }
+
+        post.setUpdatedAt(LocalDateTime.now());
+
+        return postRepository.save(post);
     }
 }
