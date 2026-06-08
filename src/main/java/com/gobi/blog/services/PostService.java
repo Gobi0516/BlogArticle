@@ -13,11 +13,15 @@ import java.util.UUID;
 
 @Service
 public interface PostService {
+    Post getPostById(UUID postId);
+
     List<Post> getAllPosts(UUID categoryId, UUID tagId);
 
     List<Post> getAllDraftPost(User user);
 
     Post createPost(CreatePostRequest request, User user);
 
-    Post updatePost(UUID postId, UpdatePostRequest request, User user);
+    Post updatePost(UUID postId, UpdatePostRequest request);
+
+    void deletePost(UUID postId);
 }

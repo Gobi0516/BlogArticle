@@ -36,6 +36,13 @@ public class PostServiceImpl implements PostService {
 
 
     @Override
+    public Post getPostById(UUID postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("Post not found with id: " + postId));
+
+    }
+
+    @Override
     public List<Post> getAllPosts(UUID categoryId, UUID tagId) {
         // validate category
         if (categoryId != null) {
@@ -108,19 +115,16 @@ public class PostServiceImpl implements PostService {
     @Override
     public Post updatePost(
             UUID postId,
-            UpdatePostRequest request,
-            User user
+            UpdatePostRequest request
     ) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() ->
                         new EntityNotFoundException("Post not found"));
 
         // Optional: only allow author to update
-        if (!post.getAuthor().getId().equals(user.getId())) {
-            throw new UnauthorizedException("You are not allowed to update this post");
-        }
 
         post.setTitle(request.getTitle());
+        post.setStatus(request.getStatus());
         post.setContent(request.getContent());
 
         if (request.getCategoryId() != null) {
@@ -142,5 +146,14 @@ public class PostServiceImpl implements PostService {
         post.setUpdatedAt(LocalDateTime.now());
 
         return postRepository.save(post);
+    }
+
+    @Override
+    public void deletePost(UUID postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Post not found"));
+
+        postRepository.delete(post);
     }
 }

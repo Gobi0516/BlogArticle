@@ -1,19 +1,23 @@
 package com.gobi.blog.dtos;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import com.gobi.blog.domain.PostStatus;
+import lombok.*;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 @Builder
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UpdatePostRequest {
 
+    private UUID id;
     private String title;
     private String content;
     private UUID categoryId;
-    private Set<UUID> tagIds;
+    @Builder.Default
+    private Set<UUID> tagIds = new HashSet<>();
+    private PostStatus status;
 }
